@@ -1,0 +1,12 @@
+.logo {
+  height: 30px;
+  margin: 10px;
+  background-image: url("../../../public/logo.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.site-layout .site-layout-background {
+  background: #f4f6f9;
+}

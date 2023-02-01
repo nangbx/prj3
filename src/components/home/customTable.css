@@ -1,0 +1,25 @@
+.car-info-box {  
+  border: 1px solid #000;
+  text-align: left;
+  font-weight: 500;
+}
+
+.car-info-box td{
+  border: 1px solid #000;
+  text-align: left;
+}
+
+.car-info-box {
+  border-collapse: collapse;
+}
+
+.car-info-box td {
+  padding: 5px;
+}
+
+.car-info-box td:nth-child(even){
+  width: 200px;
+}
+.car-info-box td:nth-child(odd){
+  width: 100px;
+}

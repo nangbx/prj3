@@ -1,0 +1,7 @@
+.list > div div.active{
+  background-color: gray;
+}
+
+.list{
+  width: 100%;
+}

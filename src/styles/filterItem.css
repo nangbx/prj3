@@ -1,0 +1,13 @@
+.filter-wrapper{
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.filter-wrapper .filter-label{
+  width: 40%;
+  margin: auto;
+}
+
+.filter-wrapper .filter-item{
+  flex: 1;
+}
