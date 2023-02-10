@@ -18,9 +18,9 @@ import {
     DeleteOutlined,
     EditOutlined,
 } from "@ant-design/icons";
-import { useEffect, useState } from "react";
+import  FormInstance from "antd/es/form"
+import { useEffect, useState, useRef } from "react";
 import moment from "moment";
-
 import makeRequest from "../../utils/makeRequest";
 import { RECORD_MODE } from "../../const/mode";
 import { addListKey } from "../../utils/addListKey";
@@ -33,6 +33,7 @@ import {
     NotificationType,
     openNotification,
 } from "../../utils/notificationHandle";
+import FormInsurance from "../maintain/FormInsurance";
 
 const { Option } = Select;
 const { confirm } = Modal;
@@ -188,7 +189,7 @@ const DeviceManager = () => {
                         type="primary"
                         shape="circle"
                         icon={<EditOutlined />}
-                        onClick={() => hanldeSelected(record)}
+                        onClick={() => handleSelected(record)}
                     />
                     <Button
                         type="primary"
@@ -205,28 +206,25 @@ const DeviceManager = () => {
     ];
 
     // Function handle selectedRow
-    const hanldeSelected = (record) => {
+    const handleSelected = (record) => {
         setVisible(true);
-        let formatedRecord = {
+        let formattedRecord = {
             ...record,
             activationTime: record.activationTime
                 ? moment(record.activationTime)
                 : null,
         };
-        setSelectedRecord(formatedRecord);
         form.resetFields();
-        form.setFieldsValue(formatedRecord);
+        form.setFieldsValue(formattedRecord);
         setMode(RECORD_MODE.UPDATE);
     };
 
-    const onSelectedChange = (selectedRowKeys, selectedRows) => {
-        setSelectedRowArr(selectedRowKeys);
-    };
+
 
     // Function handle drawer
     const onClose = () => {
-        setSelectedRowArr([]);
-        setSelectedRecord({});
+        form.setFieldsValue({});
+        form.resetFields();
         setVisible(false);
     };
 
@@ -260,8 +258,8 @@ const DeviceManager = () => {
         getData();
     }, []);
 
-    const [form] = Form.useForm();
 
+    const [form] = Form.useForm();
     const onFinish = (device) => {
         setLoading(true);
         let deviceData = {
@@ -295,10 +293,9 @@ const DeviceManager = () => {
         });
     };
 
-    const openCreateForm = () => {
+    const openCreateForm = async () => {
         setVisible(true);
         setMode(RECORD_MODE.CREATE);
-        setSelectedRecord({});
         form.resetFields();
         form.setFieldsValue({});
     };
@@ -362,16 +359,17 @@ const DeviceManager = () => {
                 />
             </Card>
 
-            <Drawer
+            <Modal
                 title={
                     mode === RECORD_MODE.CREATE
                         ? "Thêm thiết bị mới"
                         : "Cập nhật"
                 }
-                placement="right"
-                onClose={onClose}
+                onCancel={onClose}
                 visible={visible}
-                width="450"
+                onOk={form.submit}
+                okText='Lưu'
+                cancelText='Thoát'
             >
                 <Form
                     name="rfidForm"
@@ -503,19 +501,8 @@ const DeviceManager = () => {
                     >
                         <Checkbox />
                     </Form.Item>
-
-                    <Form.Item
-                        wrapperCol={{
-                            offset: 0,
-                            span: 24,
-                        }}
-                    >
-                        <Button type="primary" htmlType="submit">
-                            Lưu
-                        </Button>
-                    </Form.Item>
                 </Form>
-            </Drawer>
+            </Modal>
             <CustomSkeleton loading={loading} />
         </>
     );

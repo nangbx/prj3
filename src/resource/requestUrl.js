@@ -1,4 +1,4 @@
-const host = "http://localhost:5000";
+const host = "https://94b5-27-72-30-241.ap.ngrok.io";
 // const host = "http://203.171.20.94:5000";
 const baseUrl = `${host}/api`;
 

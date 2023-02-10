@@ -1,13 +1,17 @@
-import { Table, Input, Button, Space, Select, Drawer, Form, Checkbox,
+import {
+  Table, Input, Button, Space, Select, Drawer, Form, Checkbox,
   notification,
   Tooltip,
-  Card,
+  Card, Modal,
 } from "antd"
 import {
   CheckOutlined,
   CloseOutlined,
   RedoOutlined,
   CloseCircleOutlined,
+  EditOutlined,
+  ScissorOutlined,
+  DeleteOutlined
 } from "@ant-design/icons"
 import { useEffect, useState } from "react"
 import ImageUploading from "react-images-uploading"
@@ -25,8 +29,10 @@ import CustomSkeleton from "../skeleton/CustomSkeleton"
 import { host } from "../../resource/requestUrl"
 
 import "./Member.css"
+import {NotificationType, openNotification} from "../../utils/notificationHandle";
 
 const { Option } = Select
+const { confirm } = Modal;
 
 const MemberManagement = ({ config }) => {
   const [members, setMembers] = useState([])
@@ -135,9 +141,10 @@ const MemberManagement = ({ config }) => {
       render: (text, record) => {
         return <>{record.unit.name}</>
       },
-      width: 150,
+      width: 120,
     },
     {
+      width: 100,
       title: "Tình trạng",
       render: (text, record) => {
         return <>{record.status ? "Đang làm" : "Đã nghỉ việc"}</>
@@ -148,10 +155,12 @@ const MemberManagement = ({ config }) => {
       render: (text, record) => {
         return (
           <Space>
-            <Button type="default" danger size="small">
+            <Button type="primary" icon={<EditOutlined />} onClick={() => handleSelected(record)}>Sửa</Button>
+            <Button type="primary" danger icon={<ScissorOutlined />} onClick={() => handleRemoveRfid(record)}>
               Gỡ RFID
             </Button>
-            <Button type="default" danger size="small">
+
+            <Button type="primary" danger icon={<DeleteOutlined />} onClick={() => handleDeleteMember(record)} >
               Xóa
             </Button>
           </Space>
@@ -162,28 +171,40 @@ const MemberManagement = ({ config }) => {
     },
   ]
 
+  const handleRemoveRfid = (record) => {
+    const title = config.tableTitle.replace("Danh sách ", '')
+    confirm({title: `Gỡ thẻ Rfid của ${title}: ${record.name}`, okText: "Có", okType: "danger", cancelText: "Không", onOk(){
+        openNotification(NotificationType.SUCCESS, "Gỡ thành công!")
+      }})
+  }
+  const handleDeleteMember = (record) => {
+    const title = config.tableTitle.replace("Danh sách ", '');
+    confirm({
+      title: `Có muốn xóa ${title}: ${record.name} khỏi danh sách?`,
+      okText: "Có",
+      okType: "danger",
+      cancelText: "Không",
+      onOk () {
+        openNotification(NotificationType.SUCCESS, "Xóa thành công!")
+      }
+    })
+  }
   // Function handle selectedRow
-  const onRowSelected = (record, selected, selectedRows) => {
+  const handleSelected = (record) => {
     setVisible(true)
-    let selectedRecord = selectedRows[0]
-    setSelectedRecord({ ...selectedRecord })
     form.resetFields()
-    form.setFieldsValue({ ...selectedRecord })
+    form.setFieldsValue({...record})
     setMode(RECORD_MODE.UPDATE)
 
     setDisplayRfids(
-      rfidHandle.setListRfid(rfids, selectedRows[0].rfid, RECORD_MODE.UPDATE)
+      rfidHandle.setListRfid(rfids, record.rfid, RECORD_MODE.UPDATE)
     )
-  }
-
-  const onSelectedChange = (selectedRowKeys, selectedRows) => {
-    setSelectedRowArr(selectedRowKeys)
   }
 
   // Function handle drawer
   const onClose = () => {
-    setSelectedRowArr([])
-    setSelectedRecord({})
+    form.setFieldsValue({});
+    form.resetFields();
     setImages([])
     setVisible(false)
   }
@@ -235,6 +256,7 @@ const MemberManagement = ({ config }) => {
 
   const onFinish = (member) => {
     setLoading(true)
+    setVisible(false)
     let data = { ...member }
     if (images.length) {
       let img = images[0]
@@ -282,7 +304,6 @@ const MemberManagement = ({ config }) => {
       handleReloadRfid(mode)
       setSelectedRowArr([])
       setSelectedRecord({})
-      setVisible(false)
       setRfids(rfidHandle.rmDistributedRfid(rfids, { id: member.rfidid }))
       setLoading(false)
     })
@@ -322,7 +343,7 @@ const MemberManagement = ({ config }) => {
       <Card
         title={config.tableTitle}
         extra={
-          <Button type="primary" onClick={openCreateForm}>
+          <Button type="primary" onClick={openCreateForm} size='large'>
             Thêm cán bộ
           </Button>
         }
@@ -368,17 +389,8 @@ const MemberManagement = ({ config }) => {
             ...pagination,
             onChange: handlePaginationChange,
           }}
-          size="small"
-          rowSelection={{
-            selectedRowKeys: selectedRowArr,
-            columnTitle: <div>Sửa</div>,
-            columnWidth: 50,
-            type: "checkbox",
-            onSelect: (record, selected, selectedRows) =>
-              onRowSelected(record, selected, selectedRows),
-            onChange: (selectedRowKeys, selectedRows) =>
-              onSelectedChange(selectedRowKeys, selectedRows),
-          }}
+          size="large"
+
         />
       </Card>
       {/* <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -388,13 +400,13 @@ const MemberManagement = ({ config }) => {
         </Button>
       </div> */}
 
-      <Drawer
+      <Modal
         title={
           mode === RECORD_MODE.CREATE ? "Thêm cán bộ" : "Cập nhật thông tin"
         }
-        placement="right"
-        onClose={onClose}
+        onCancel={onClose}
         visible={visible}
+        onOk={form.submit}
       >
         <ImageUploading
           value={images}
@@ -556,18 +568,8 @@ const MemberManagement = ({ config }) => {
             <Checkbox />
           </Form.Item>
 
-          <Form.Item
-            wrapperCol={{
-              offset: 0,
-              span: 24,
-            }}
-          >
-            <Button type="primary" htmlType="submit">
-              Lưu
-            </Button>
-          </Form.Item>
         </Form>
-      </Drawer>
+      </Modal>
       <CustomSkeleton loading={loading} />
     </>
   )

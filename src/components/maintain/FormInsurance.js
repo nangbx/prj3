@@ -257,6 +257,7 @@ const FormInsurance = ({ carId }) => {
                         onChange: handlePaginationChange,
                     }}
                     size="small"
+                    bordered
                 />
             </Card>
             <Modal

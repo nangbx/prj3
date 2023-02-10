@@ -2,13 +2,13 @@ import {
     Card,
     Button,
     Space,
-    Table,
     Modal,
     Form,
     Input,
     DatePicker,
     Select,
 } from "antd";
+import {Table} from "../table/Table"
 import {
     ExclamationCircleOutlined,
     EditOutlined,

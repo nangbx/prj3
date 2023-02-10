@@ -86,7 +86,7 @@ const Template = () => {
                             <Button type="primary">{template.name}</Button>
                         ))}
                 </Card> */}
-                <Card title="List template">
+                <Card title="Template">
                     <List
                         dataSource={listTemplate}
                         renderItem={(item) => (

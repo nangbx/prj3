@@ -19,6 +19,7 @@ const makeRequest = async ({
     data,
     headers: {
       'Access-Control-Allow-Origin': '*',
+      'ngrok-skip-browser-warning': 'f',// remove
       "Content-Type": "application/json",
       "x-access-token": Cookies.get("x-access-token"),
       ...headerOpt
